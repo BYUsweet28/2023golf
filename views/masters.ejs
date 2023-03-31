@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>The Masters</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="/css/styles.css" rel="stylesheet" />
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2?n=1"></script>
+
+        <script>
+
+            document.addEventListener("DOMContentLoaded", function () {
+                new Vue({
+
+                    el: "#form",
+                    data: {
+                        leaderboard : [],
+                        deliveryFeeCounter : 0,
+                        aiPlayerEarnings : [],
+                        aiPlayerPosition : [],
+                        aiPlayerScore : []
+                    },
+                    methods: {
+
+                        playerStats()
+                        {                                                       
+                            for(let iCount = 0; iCount < document.getElementsByClassName("earnings").length; iCount++)
+                            {
+                                if(iCount == 0)
+                                {
+                                    this.aiPlayerEarnings[iCount] = document.getElementById("earnings").innerHTML;
+                                    this.aiPlayerPosition[iCount] = document.getElementById("golfer").innerHTML.toUpperCase();
+                                    this.aiPlayerScore[iCount] = document.getElementById("score").innerHTML;
+                                }
+                                else
+                                {
+                                    this.aiPlayerEarnings[iCount] = document.getElementById("earnings" + iCount).innerHTML;
+                                    this.aiPlayerPosition[iCount] = document.getElementById("golfer" + iCount).innerHTML.toUpperCase();
+                                    this.aiPlayerScore[iCount] = document.getElementById("score" + iCount).innerHTML;
+                                }
+                            }
+                            this.calcScore();
+                        },
+
+                        getLeaderboard: async function () 
+                        {
+                            try {
+
+                                //Request the data from the API
+                                const options = {
+                                    method: 'GET',
+                                    headers: {
+                                        'X-RapidAPI-Key': 'f1b03e4d97mshb8a45884ad8e8a2p1ce2dajsn5be73edaa2b3',
+                                        'X-RapidAPI-Host': 'golf-leaderboard-data.p.rapidapi.com'
+                                    }
+                                };
+
+                                await fetch('https://golf-leaderboard-data.p.rapidapi.com/leaderboard/500', options)
+                                    .then(response => response.json())
+                                    .then(response => this.leaderboard = response.results.leaderboard)
+                                    .then(response => console.log(this.leaderboard))
+                                    .catch(err => console.error(err));
+                                    console.log(this.leaderboard[0])
+                            }
+
+                            catch (err) {
+                            console.log(err);
+                            }
+
+                            this.insRows();
+                        },
+
+                        insRows() 
+                        {
+                            const mastersEarnings = [2700000, 1620000, 1020000, 720000, 600000, 540000, 502500, 465000, 435000, 405000, 375000, 345000, 315000, 285000, 270000, 255000, 240000, 225000, 210000, 195000, 180000, 168000, 156000, 144000, 132000, 120000, 115500, 111000, 106500, 102000, 97500, 93000, 88500, 84750, 81000, 77250, 73500, 70500, 67500, 64500, 61500, 58500, 55500, 52500, 49500, 46500, 43500, 41100, 39000, 37800];
+                            let score1 = 0;
+                            for(let iCount2 = 0; iCount2 < this.leaderboard[0].rounds.length; iCount2++)
+                            {
+                                score1 += this.leaderboard[0].rounds[iCount2].total_to_par;
+                            }
+                            document.getElementById('score').innerHTML = score1;
+                            document.getElementById('golfer').innerHTML = this.leaderboard[0].first_name + ' ' + this.leaderboard[0].last_name;
+                            if(this.leaderboard[0].prize_money != "")
+                            {
+                                document.getElementById('earnings').innerHTML = this.leaderboard[0].prize_money;
+                            }
+                            else
+                            {
+                                document.getElementById('earnings').innerHTML = mastersEarnings[0];
+                            }
+
+                            for(let iCount = 1; iCount < this.leaderboard.length; iCount++)
+                            {
+                                var x = document.getElementById('leaderboardTable');
+                                var new_row = x.rows[1].cloneNode(true);
+                                var len = x.rows.length;
+                                new_row.cells[0].innerHTML = len;
+
+                                var col1 = new_row.cells[1];
+                                col1.id += (len -1);
+                                let score = 0;
+                                for(iCount2 = 0; iCount2 < this.leaderboard[iCount].rounds.length; iCount2++)
+                                {
+                                    score += this.leaderboard[iCount].rounds[iCount2].total_to_par;
+                                }
+
+                                if(score < 0)
+                                {
+                                    golfScore = score;
+                                }
+                                else if(score == 0)
+                                {
+                                    golfScore = "E";
+                                }
+                                else
+                                {
+                                    golfScore = "+" + score;
+                                }
+                                col1.innerHTML = golfScore;
+
+                                var col2 = new_row.cells[2];
+                                col2.id += (len - 1);
+                                col2.innerHTML = this.leaderboard[iCount].first_name + ' ' + this.leaderboard[iCount].last_name;
+                                x.appendChild(new_row);
+
+                                var col3 = new_row.cells[3];
+                                col3.id += (len - 1);
+                                if(this.leaderboard[iCount].prize_money != "")
+                                {
+                                    col3.innerHTML = this.leaderboard[iCount].prize_money;
+                                }
+                                else
+                                {
+                                    if(mastersEarnings[iCount] != undefined)
+                                    {
+                                        col3.innerHTML = mastersEarnings[iCount];
+                                    }
+                                    else
+                                    {
+                                        col3.innerHTML = 0;
+                                    }
+                                }
+                                x.appendChild(new_row);
+                            }
+
+                            var positionId = 50;
+                            var aiTie = [];
+                            while(document.getElementById("score" + positionId).innerHTML == document.getElementById("score" + (positionId - 1)).innerHTML)
+                            {
+                                document.getElementById("earnings" + positionId).innerHTML = document.getElementById("earnings" + (positionId - 1)).innerHTML;
+                                aiTie.push(positionId);
+                                positionId += 1;
+                            }
+
+                            var avgTotal = 0;
+                            for(i = 0; i < aiTie.length; i++)
+                            {
+                                avgTotal += parseInt(document.getElementById("earnings" + aiTie[i]).innerHTML);
+                            }
+
+                            var iAvg = avgTotal / aiTie.length
+                            for(i = 0; i < aiTie.length; i++)
+                            {
+                                document.getElementById("earnings" + aiTie[i]).innerHTML = iAvg;
+                            }
+
+                            this.playerStats();
+                        },
+
+                        calcScore()
+                        {
+                            for(let iCount2 = 1; iCount2 < ((document.getElementsByClassName("card mb-4").length) - 3); iCount2++)
+                            {
+                                var sPlayerName = "";
+                                var aiTeamPosition = [];
+                                var aiTeamEarnings = [];
+                                var iSum = 0;
+                        
+                                for(let iCount = 0; iCount < 5; iCount++)
+                                {
+                                    // if(iCount == 4)
+                                    // {
+                                    //     var sPlayerNameStart = ((document.getElementById("teamOutput" + iCount2).innerHTML.lastIndexOf(iCount + 1)) + 3);
+                                    //     var sNextPlayer = (document.getElementById("teamOutput" + iCount2).innerHTML.indexOf("$")) - 37;
+                                    //     sPlayerName[iCount] = document.getElementById("teamOutput" + iCount2).innerHTML.slice(sPlayerNameStart,sNextPlayer);
+                                    //     sOutput += (iCount + 1) + ". " + sPlayerName[iCount] + "<br>";
+                                    // }
+                                    // else
+                                    // {
+                                    //     var sPlayerNameStart = ((document.getElementById("teamOutput" + iCount2).innerHTML.lastIndexOf(iCount + 1)) + 3);
+                                    //     var sNextPlayer = ((document.getElementById("teamOutput" + iCount2).innerHTML.lastIndexOf(iCount + 2)) - 4);
+                                    //     sPlayerName[iCount] = document.getElementById("teamOutput" + iCount2).innerHTML.slice(sPlayerNameStart,sNextPlayer);
+                                    //     sOutput += (iCount + 1) + ". " + sPlayerName[iCount] + "<br>";
+                                    // }
+                                    
+                                    if(iCount2 == 1)
+                                    {
+                                        sPlayerName = document.getElementsByClassName("golf")[iCount].innerHTML.toUpperCase();
+                                    }
+                                    else
+                                    {
+                                        if((((iCount2 - 1) * 5) + iCount) <= ((document.getElementsByClassName("card mb-4").length - 4) * 5))
+                                        {
+                                            sPlayerName = document.getElementsByClassName("golf")[((iCount2 - 1) * 5) + iCount].innerHTML.toUpperCase();
+                                        }
+                                    }
+
+                                    if(this.aiPlayerPosition.indexOf(sPlayerName) != -1)
+                                    {
+                                        aiTeamPosition[iCount] = parseInt(this.aiPlayerPosition.indexOf(sPlayerName));
+
+                                        if(aiTeamPosition[iCount] == 0)
+                                        {
+                                            aiTeamEarnings[iCount] = parseInt(document.getElementById("earnings").innerHTML);
+                                        }
+                                        else
+                                        {
+                                            aiTeamEarnings[iCount] = parseInt(document.getElementById("earnings" + (aiTeamPosition[iCount] + 1)).innerHTML);
+                                        }
+
+                                        iSum += aiTeamEarnings[iCount];
+                                    } 
+                                }
+                                // iSum.toLocaleString("en-US")
+                                document.getElementById("totalEarnings" + iCount2).innerHTML = iSum;
+                            }
+
+                            this.bubbleSort();
+                        },
+
+                        bubbleSort()
+                        {
+                            let aiTotalEarnings = [];
+                            for(let iCounter = 1; iCounter < ((document.getElementsByClassName("card mb-4").length) - 3); iCounter++)
+                            {
+                                aiTotalEarnings[iCounter] = parseInt(document.getElementById("totalEarnings" + iCounter).innerHTML);
+                            };
+
+                            let sHoldTeamName = "";
+                            let iHoldTeamAmount = 0;
+                            
+                            for (let iOuter = 1; iOuter < aiTotalEarnings.length - 1; iOuter++)
+                            {
+                                // console.log(aiTotalEarnings[iOuter]);
+                                for (let iInner = iOuter + 1; iInner < aiTotalEarnings.length; iInner++)
+                                {
+                                    // console.log(aiTotalEarnings[iInner]);
+                                    if (aiTotalEarnings[iOuter] < aiTotalEarnings[iInner])
+                                    {
+                                        sHoldTeamName = document.getElementById("teamOutput" + iOuter).innerHTML;
+                                        iHoldTeamAmount = aiTotalEarnings[iOuter];
+                            
+                                        document.getElementById("teamOutput" + iOuter).innerHTML = document.getElementById("teamOutput" + iInner).innerHTML;
+                                        aiTotalEarnings[iOuter] = aiTotalEarnings[iInner];
+                            
+                                        document.getElementById("teamOutput" + iInner).innerHTML = sHoldTeamName;
+                                        aiTotalEarnings[iInner] = iHoldTeamAmount;
+                                    };
+                                };
+                            };
+
+                            this.format();
+                        },
+
+                        format()
+                        {
+                            dollars = 0;
+                            for(let iCount = 1; iCount < ((document.getElementsByClassName("card mb-4").length) - 3); iCount++)
+                            {
+                                dollars = parseInt(document.getElementById("totalEarnings" + iCount).innerHTML).toLocaleString("en-US");
+                                document.getElementById("totalEarnings" + iCount).innerHTML = dollars;
+                            };
+
+                            prizemoney = 0;
+                            for(let iCount = 0; iCount < (document.getElementsByClassName("earnings").length); iCount++)
+                            {
+                                if(iCount == 0)
+                                {
+                                    prizemoney = parseInt(document.getElementById("earnings").innerHTML).toLocaleString("en-US");
+                                    document.getElementById("earnings").innerHTML = prizemoney;
+                                }
+                                else if(parseInt(document.getElementById("earnings" + iCount).innerHTML).toLocaleString("en-US") == document.getElementById("earnings").innerHTML)
+                                {
+                                    document.getElementById("earnings" + iCount).innerHTML = "MC";
+                                }
+                                else
+                                {
+                                    prizemoney = parseInt(document.getElementById("earnings" + iCount).innerHTML).toLocaleString("en-US");
+                                    document.getElementById("earnings" + iCount).innerHTML = prizemoney;
+                                }
+                            };
+
+                            for(let iCount = 0; iCount < document.getElementsByClassName("rank").length; iCount++)
+                            {
+                                document.getElementsByClassName("rank")[iCount].innerHTML = (iCount + 1);
+                            };
+                        }
+                    },
+
+                    computed: {}, 
+                    mounted(){
+
+                        this.getLeaderboard();
+                    }
+                })
+            })
+        </script>
+    </head>
+    <body>
+        <!-- Responsive navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">Major Golf Championships</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link active" href="/tournament">The Masters</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/tournament">PGA Tour Championship</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/tournament">The U.S. Open</a></li>
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/tournament">The Open</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Page header with logo and tagline-->
+        <header class="py-5 bg-light border-bottom mb-4">
+            <div class="container">
+                <div class="text-center my-5">
+                    <a id="top"></a>
+                    <h1 class="fw-bolder" >The 2023 Masters Championship</h1>
+                    <br>
+                    <p class="lead mb-0">Augusta National Golf Course</p>
+                    <br>
+                    <a href="#!"><img class="card-img-top" src="/images/augusta.jpg" alt="..." /></a>
+                </div>    
+            </div>
+        </header>
+        <!-- Page content-->
+        <div class="container-xxl">
+            <div class="row">
+                <!-- Blog entries-->
+                <div class="col-lg-8">
+                    <!-- Featured blog post-->
+                    <div class="card mb-4">
+                        <a href="#!"><img class="card-img-top" src="/images/masterswinner.jpg" alt="..." /></a>
+                        <div class="card-body">
+                            <h2 class="card-title">Who Do You Think Will Win?</h2>
+                            <div class="small text-muted">Picks due by 11:59 PM on Wednesday April 5th.</div>
+                            <div class="small text-muted">Note:
+                                <ul>
+                                    <li>The projected earnings are estimates and will be finalized and verified at the end of the tournament</li>
+                                    <li>Players who miss the cut earn 0 dollars</li>
+                                </ul></div>
+                            <p class="card-text">Click below to enter:</p>
+                            <a class="btn btn-primary" href="newTeam">Build Your Team</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Side widgets-->
+                <div class="col-lg-4">
+                    <!-- Categories widget-->
+                    <div class="card mb-4">
+                        <div class="card-header">Helpful Tools</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <ul class="list-unstyled mb-0">
+                                        <li><a href="https://sportsbook.draftkings.com/leagues/golf/us-masters" target="_blank">Betting Odds</a></li>
+                                        <li><a href="https://www.masters.com/" target="_blank">Official Website</a></li>
+                                        <li><a href="https://www.masters.com/en_US/players/pairings/" target="_blank">Tee Times</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-6">
+                                    <ul class="list-unstyled mb-0">
+                                        <li><a href="https://www.pgatour.com/players.html" target="_blank">List of PGA Golfers</a></li>
+                                        <li><a href="https://www.livgolf.com/player" target="_blank">List of LIV Golfers</a></li>
+                                        <li><a href="https://www.pgatour.com/stats/stat.186.html" target="_blank">World Golf Rankings</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Side widget-->
+                    <div class="card mb-4">
+                        <div class="card-header">Keep in Mind:</div>
+                        <div class="card-body">
+                            <ul>
+                                <li>You can pick up to 5 players</li>
+                                <li>The goal is to maximize your team's earnings</li>
+
+                                <li>The leaderboard will be updated every night at midnight</li>
+                                <li>$10 entry fee per team</li>
+                                <li>1st place team wins 70% of total pot</li>
+                                <li>2nd place team wins 20% of total pot</li>
+                                <li>3rd place team wins 10% of total pot</li>
+                                <li>All ties split winnings equally</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                    <!-- Nested row for non-featured blog posts-->
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <% for (let iCount = 0; iCount < teams.length; iCount++) { %>
+                            <div class="card mb-4">
+                                <div class="card-body" id="teamOutput<%= iCount + 1 %>">
+                                    <div class="small text-muted">Position: <span class="rank"><%= iCount + 1 %></span></div>
+                                    <p class="card-text">
+                                        <%= teams[iCount].owner %>'s Picks: <br>
+                                        <ul>
+                                            <% teams[iCount].golfers.forEach((golfer) => { %>
+                                              <li class="golf"><%= golfer %></li>
+                                            <% }); %>
+                                        </ul>
+                                        Team Total Earnings: $<span id="totalEarnings<%= iCount + 1 %>"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <% }; %>                                                                                                                                        
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <div class="large text-muted" style="text-align: center; font-size: large;">Live Leaderboard</div>
+                                    <table id="leaderboardTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 25%;text-align:left">Position</th>
+                                                <th style="width: 25%;text-align:left">Score</th>
+                                                <th style="width: 60%;text-align:left">Golfer Name</th>
+                                                <th style="width: 50%;text-align:left">Projected Earnings (in $)</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr >
+                                                <td>1</td>
+                                                <td id="score"></td>
+                                                <td id="golfer"></td>
+                                                <td id="earnings" class="earnings"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>        
+                                </div>
+                            </div>
+                        </div>
+
+                    <div class="col-auto">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <a class="btn btn-primary" href="#top">Back to Top</a>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>        
+        <!-- Footer-->
+        <footer class="py-5 bg-dark">
+            <div class="container"><p class="m-0 text-center text-white">Website Created by <span style="font-weight: bold">Maxwell Sweet</span></p></div>
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="/js/scripts.js"></script>
+    </body>
+</html>

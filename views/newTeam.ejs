@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Major Golf Championships</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Responsive navbar-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="/">Major Golf Championships</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/masters"
+                >The Masters</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/tournament"
+                >PGA Tour Championship</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/tournament">The U.S. Open</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/tournament">The Open</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- Page header with logo and tagline-->
+    <header class="py-5 bg-light border-bottom mb-4 bg-image">
+      <div class="container">
+        <div class="text-center my-5">
+          <h1 class="fw-bolder">Enter Team Info Below:</h1>
+        </div>
+      </div>
+    </header>
+    <div style="display: block; margin: auto; width: 50%" class="text-center">
+      <form action="/newTeam" method="POST">
+        <label for="teamName">Your Name:</label>
+        <input type="text" id="teamName" name="teamName" />
+        <br /><br />
+        <label for="golfer1">Golfer 1:</label>
+        <select name="golfers" id="golfer1">
+          <option selected>Please choose a golfer</option>
+          <% for (var i = 0; i < golfers.length; i++) { %>
+          <option value="<%= golfers[i].name %>"><%= golfers[i].name %></option>
+          <% } %>
+        </select>
+        <br /><br />
+        <label for="golfer2">Golfer 2:</label>
+        <select name="golfers" id="golfer2">
+          <option selected>Please choose a golfer</option>
+          <% for (var i = 0; i < golfers.length; i++) { %>
+          <option value="<%= golfers[i].name %>"><%= golfers[i].name %></option>
+          <% } %>
+        </select>
+        <br /><br />
+        <label for="golfer3">Golfer 3:</label>
+        <select name="golfers" id="golfer3">
+          <option selected>Please choose a golfer</option>
+          <% for (var i = 0; i < golfers.length; i++) { %>
+          <option value="<%= golfers[i].name %>"><%= golfers[i].name %></option>
+          <% } %>
+        </select>
+        <br /><br />
+        <label for="golfer4">Golfer 4:</label>
+        <select name="golfers" id="golfer4">
+          <option selected>Please choose a golfer</option>
+          <% for (var i = 0; i < golfers.length; i++) { %>
+          <option value="<%= golfers[i].name %>"><%= golfers[i].name %></option>
+          <% } %>
+        </select>
+        <br /><br />
+        <label for="golfer5">Golfer 5:</label>
+        <select name="golfers" id="golfer5">
+          <option selected>Please choose a golfer</option>
+          <% for (var i = 0; i < golfers.length; i++) { %>
+          <option value="<%= golfers[i].name %>"><%= golfers[i].name %></option>
+          <% } %>
+        </select>
+        <br /><br />
+        <button type="submit" class="btn btn-primary">Add Team</button>
+      </form>
+    </div>
+    <br />
+    <!-- Footer-->
+    <footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">
+          Website by <span style="font-weight: bold">Maxwell Sweet</span>
+        </p>
+      </div>
+    </footer>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+  </body>
+</html>
